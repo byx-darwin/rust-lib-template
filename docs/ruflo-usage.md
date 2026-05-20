@@ -38,6 +38,33 @@ Ruflo / Claude-flow runtime state is ignored by `.gitignore`, including:
 - `.mcp.json`;
 - `ruvector.db`.
 
+## Runtime memory policy
+
+Do not commit Ruflo / Claude-flow runtime memory, sessions, vector databases, logs, or local MCP config. If a memory is useful across machines, summarize and sanitize it into `CLAUDE.md`, `./docs`, or `./specs`.
+
+Use Ruflo only to find candidate memories; keep raw exports outside the repository:
+
+```bash
+npx ruflo@latest memory stats
+npx ruflo@latest memory search --query "rust template workflow" --limit 10
+npx ruflo@latest memory export --namespace "patterns" --output /tmp/ruflo-patterns.json
+```
+
+Then ask Claude to summarize without copying raw entries:
+
+```text
+Summarize <memory-export-file> for durable project knowledge. Example: summarize `/tmp/ruflo-patterns.json`. Do not repeat raw entries. Redact usernames, absolute paths, tokens, cookies, internal URLs, machine names, and temporary task details. Keep only long-lived project rules, workflows, lessons learned, and decisions. Group the result by target file:
+- `CLAUDE.md` for binding project rules;
+- `docs/ruflo-usage.md` for Ruflo workflow guidance;
+- `docs/pre-commit-usage.md` for pre-commit/tooling notes;
+- `docs/troubleshooting.md` for reusable problem/solution notes;
+- `docs/research/<topic>.md` for dependency or prior-art research;
+- `specs/<feature>-*.md` for feature-specific requirements, designs, and implementation plans.
+If a target file does not exist, mark it as "suggested new file". Return concise Markdown patches only.
+```
+
+After review, delete the temporary export file.
+
 ## Install / init options
 
 Ruflo has two common setup modes.
@@ -248,6 +275,33 @@ Ruflo 适合用来协调较复杂的 agent 工作流，例如：
 - `.claude/`；
 - `.mcp.json`；
 - `ruvector.db`。
+
+## 运行态记忆策略
+
+不要提交 Ruflo / Claude-flow 的运行态记忆、session、vector DB、日志或本地 MCP 配置。如果某条记忆需要跨机器复用，应先总结、脱敏，再写入 `CLAUDE.md`、`./docs` 或 `./specs`。
+
+Ruflo 只用于查找候选记忆；原始导出文件应放在仓库外：
+
+```bash
+npx ruflo@latest memory stats
+npx ruflo@latest memory search --query "rust template workflow" --limit 10
+npx ruflo@latest memory export --namespace "patterns" --output /tmp/ruflo-patterns.json
+```
+
+然后让 Claude 总结，不要复制原始条目：
+
+```text
+请根据 <memory-export-file> 做长期知识归档。例如：请根据 `/tmp/ruflo-patterns.json` 做长期知识归档。不要逐条复述原始 memory。请脱敏用户名、绝对路径、token、cookie、内部 URL、机器名和临时任务细节。只保留长期有效的项目规则、工作流、踩坑经验和决策。请按目标文件分类输出：
+- `CLAUDE.md`：强约束项目规则；
+- `docs/ruflo-usage.md`：Ruflo 工作流说明；
+- `docs/pre-commit-usage.md`：pre-commit / 工具链说明；
+- `docs/troubleshooting.md`：可复用的问题和解决方案；
+- `docs/research/<topic>.md`：依赖选择或 prior-art 调研；
+- `specs/<feature>-*.md`：具体功能的需求、设计和实现计划。
+如果目标文件不存在，请标记为“建议新建文件”。最后只输出精简 Markdown patch 建议。
+```
+
+人工检查总结内容后，删除临时导出文件。
 
 ## 安装 / 初始化方式
 
