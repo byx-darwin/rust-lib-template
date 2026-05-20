@@ -1,4 +1,4 @@
-![](https://github.com/tyrchen/rust-lib-template/workflows/build/badge.svg)
+![](https://github.com/byx-darwin/rust-lib-template/workflows/build/badge.svg)
 
 # {{ project-name }}
 
@@ -7,16 +7,21 @@ description of the crate
 ## How to use it
 
 ```bash
-$ cargo generate --git https://github.com/tyrchen/rust-lib-template
+$ cargo generate --git https://github.com/byx-darwin/rust-lib-template
 ```
 
 ## Agent support
 
-Generated projects include agent-facing guidance for both Codex and Claude:
+This template keeps agent-facing guidance for Claude:
 
-- `AGENTS.md` for Codex project instructions.
-- `.agents/skills/{spec,research,impl}` for Codex skills.
-- `CLAUDE.md` and `.claude/skills/{spec,research,impl}` for Claude Code compatibility.
+- `CLAUDE.md` for Claude Code project instructions.
+- Ruflo for agent workflow and orchestration.
+
+See [`docs/ruflo-usage.md`](./docs/ruflo-usage.md) for the repository policy and daily workflow.
+
+## Development workflow
+
+- [`docs/pre-commit-usage.md`](./docs/pre-commit-usage.md) explains how to install and run pre-commit hooks.
 
 Have fun with this crate!
 
@@ -26,4 +31,4 @@ This project is distributed under the terms of MIT.
 
 See [LICENSE](LICENSE.md) for details.
 
-Copyright 2025 Tyr Chen
+Copyright 2025 byx-darwin

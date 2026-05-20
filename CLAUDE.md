@@ -2,6 +2,14 @@
 
 IMPORTANT: Never enter plan mode automatically!!! Never enter plan mode automatically!!!
 
+## Template Repository Rules
+
+- This repository is a reusable template. Preserve template placeholders such as `{{ project-name }}` unless the user explicitly asks to instantiate the template.
+- Do not replace template variables with concrete project names during maintenance.
+- Use `CLAUDE.md` as the single project-level agent instruction file.
+- Use Ruflo for agent workflow/orchestration. Do not maintain project-local `.claude/skills` unless explicitly requested.
+- Keep Ruflo/Claude-flow runtime state out of git; persist reusable project guidance in `CLAUDE.md`, `./specs`, or `./docs`.
+
 ## Core Principles
 
 ### Code Quality
@@ -13,15 +21,18 @@ IMPORTANT: Never enter plan mode automatically!!! Never enter plan mode automati
   3. Rethink the design and identify the best alternative solutions
   4. Proceed with the complete solution
 - **Thorough Analysis**: Always perform a comprehensive review and analysis of the problem before starting work
-- Do not suppress dead code, remove them; Unless explicitly requested, do not go through deprecation process, just remove the code that is no longer needed.
+- Do not suppress dead code; remove it. Unless explicitly requested, do not go through a deprecation process — just remove the code that is no longer needed.
 
 ### Development Workflow
 
-- **Latest Dependencies**: Always search the web for the latest dependencies or helm charts or resources and their current usage patterns. If doing a deep research, put the research doc under ./docs/research. You shall look into that directory before doing researches.
+- **Latest Dependencies**: When adding/upgrading dependencies, Helm charts, or external resources, search for current usage patterns and security status. If doing deep research, first review `./docs/research`, then put new research docs under `./docs/research`.
 - **Automation via Makefile**:
   - Explore existing Makefile targets and use them accordingly
   - For new automation tasks, always add a Makefile target instead of creating shell scripts
   - Keep automation consistent and discoverable
+- **Workspace Hygiene**:
+  - Check existing user changes before editing; never overwrite unrelated user work.
+  - Do not commit, push, release, deploy, or change ticket status unless explicitly requested.
 
 ## Documentation
 
@@ -31,12 +42,12 @@ For docs, explore ./docs directory and put it to the right place, and update ind
 
 ## Toolchain & Build
 
-- Always use Rust 2024 edition with latest stable version. Pin version in `rust-toolchain.toml`.
-- Always run `cargo build`, `cargo test`, `cargo +nightly fmt`, and `cargo clippy -- -D warnings` before finishing the task.
-- Use `cargo clippy -- -D warnings -W clippy::pedantic` for stricter linting. Allow specific lints with justification.
-- Run `cargo audit` regularly to check for security vulnerabilities in dependencies.
-- Use `cargo-deny` to enforce license policies and ban specific crates.
-- Enable all rustc lints in Cargo.toml: `#![warn(rust_2024_compatibility, missing_docs, missing_debug_implementations)]`.
+- Use Rust 2024 edition and the pinned toolchain in `rust-toolchain.toml`; update the pin only intentionally.
+- Prefer existing Makefile targets over raw cargo commands: `make build`, `make test`, `make fmt`, `make clippy`, and `make lint`.
+- Choose the smallest validation that proves the change: docs-only changes do not require the full Cargo suite; code/API/dependency changes require relevant tests plus formatting and linting.
+- Use `cargo clippy -- -D warnings -W clippy::pedantic` or the equivalent Makefile target for stricter linting when touching production Rust code. Allow specific lints with justification.
+- Run `cargo audit` and `cargo-deny` when dependency, license, or supply-chain risk changes are involved, and regularly in CI/release workflows.
+- Configure workspace lints in `Cargo.toml` via `[workspace.lints]`; use crate-level attributes such as `#![warn(...)]` only where appropriate.
 - DO NOT use `cargo clean` at any time. If you indeed need it, ask user for permission
 
 ## Error Handling
@@ -50,12 +61,12 @@ For docs, explore ./docs directory and put it to the right place, and update ind
 
 ## Async & Concurrency
 
-- Use Tokio as async runtime. Always specify features explicitly (e.g., `tokio = { version = "1", features = ["rt-multi-thread", "macros"] }`).
+- When an async runtime is needed, use Tokio and specify features explicitly (e.g., `tokio = { version = "1", features = ["rt-multi-thread", "macros"] }`).
 - Prefer message passing (channels) over shared state. Use `tokio::sync::mpsc` for MPSC, `flume` for faster channels.
 - Organize system into subsystems using Actor model. Each actor owns its state and communicates via channels. For non-Send/Sync types (e.g., Tantivy Index), isolate in dedicated thread and use channels for communication. Never wrap in Mutex/RwLock. For Actors, it shall have proper start/stop/restart logic. Consider using AtomicBool for shutdown signal.
 - Use `DashMap` for concurrent HashMap instead of `Mutex<HashMap>` or `RwLock<HashMap>`. Provides better performance.
 - Use `ArcSwap` for infrequently updated shared data (e.g., configuration). Allows lock-free reads.
-- Always consider using config crate for configuration management. Always use yaml format for configuration. For data that shall be tuned at runtime, put in configuration file. For data that shall be tuned at compile time, use compile time constants.
+- For runtime-tunable configuration, consider the `config` crate and prefer yaml files. For compile-time invariants, use constants or types.
 - For async traits, use native `async fn` in traits (stable since Rust 1.75). **Exception**: When traits require object safety (used with `dyn Trait` for dynamic dispatch like `Arc<dyn TaskStorage>`), use `async-trait` crate and document the reason in module-level docs.
 - Always handle task panics. Use `tokio::spawn` with proper error handling. Consider `tokio::task::JoinSet` for managing multiple tasks.
 - Avoid blocking operations in async contexts. Use `tokio::task::spawn_blocking` for CPU-intensive or blocking operations.
@@ -95,7 +106,7 @@ Two complementary disciplines. **Safety** is about Rust's memory and concurrency
 - **Bound every collection**: `Vec<T>`, `HashMap<K, V>`, `HashSet<T>` from external input must have explicit element-count caps in addition to per-element validation. An unbounded `Vec<u8>` of length-bounded strings is still a memory exhaustion vector.
 - **Numeric ranges**: Bound every integer from external input. `u32` is not a range; an explicit `1..=1000` is. Use `validator`'s `range` or a newtype with a fallible constructor.
 - **Newtype every domain primitive**: Wrap validated values in newtypes with private fields and a fallible constructor (`UserId(u64)`, `Email(String)`, `Slug(String)`, `UserAgent(String)`). Validation runs once in `new`/`try_from`; every downstream use is provably safe by construction. This is the type system enforcing security invariants.
-- **Use the `validator` crate**: For struct-level validation, derive `Validate` and annotate fields with `#[validate(length(max = 256), regex = "...", email, url, range(min = 1, max = 1000))]`. Call `.validate()` immediately after deserialization — `serde` checks shape, not semantics.
+- **Validation helpers**: For complex external request structs, prefer `validator` or fallible domain newtypes. Run validation immediately after deserialization — `serde` checks shape, not semantics.
 - **Make illegal states unrepresentable**: `NonZeroU32`, `NonEmpty<T>`, state-machine enums, `#[serde(deny_unknown_fields)]`. Don't runtime-check what the type system can prove at compile time.
 
 ### Injection Prevention
@@ -138,7 +149,7 @@ Two complementary disciplines. **Safety** is about Rust's memory and concurrency
 
 ## Serialization & Data
 
-- Use `serde` for serialization. Always use `#[serde(rename_all = "camelCase")]` for JSON compatibility.
+- Use `serde` for serialization. For JSON-facing structs, use `#[serde(rename_all = "camelCase")]` for compatibility.
 - Use `#[serde(rename = "...")]` for individual field mapping. Use `#[serde(alias = "...")]` for backward compatibility.
 - Use `#[serde(default)]` for optional fields with default values. Define custom defaults with `#[serde(default = "path::to::fn")]`.
 - Use `#[serde(skip_serializing_if = "Option::is_none")]` to omit null fields in JSON output.
@@ -175,7 +186,7 @@ Two complementary disciplines. **Safety** is about Rust's memory and concurrency
 - Use `SmallVec` for small vectors that usually fit on stack. Use `smallbox` for small heap allocations.
 - Use `Cow<str>` when data might be borrowed or owned. Avoids clones when borrowing is possible.
 - For hot paths, consider using `#[inline]` or `#[inline(always)]` with justification.
-- Use latest `criterion` crate for performance benchmarking. Do not do benchmark test in early development stage.
+- When adding benchmark support, prefer the latest `criterion` crate. Do not add benchmarks prematurely in early development.
 
 ## Dependencies
 
@@ -191,11 +202,11 @@ Two complementary disciplines. **Safety** is about Rust's memory and concurrency
 - Use `//!` for module-level documentation. Explain module purpose and usage patterns.
 - Write at least one example in doc comments for public functions. Examples are tested automatically.
 - Use `# Errors`, `# Panics`, `# Safety` sections in doc comments to document failure modes.
-- Generate docs with `cargo doc --open`. Ensure docs render correctly with proper formatting.
+- Generate docs with `cargo doc --no-deps` when documentation rendering needs verification. Open generated docs only when useful or requested.
 
 ## Code Style
 
-- always import `use` dependencies in the top of the file in the following order: std, deps, local modules.
+- Always import `use` dependencies at the top of the file in the following order: std, deps, local modules.
 - Use specific imports (`use xxx::yyy::ZZZ`) and reference types/functions directly by name (`ZZZ`) in code. Never use fully qualified paths in function/structure/trait implementations. Exception: macros may use fully qualified paths when necessary.
 - Follow Rust naming conventions: `snake_case` for functions/variables, `PascalCase` for types, `SCREAMING_SNAKE_CASE` for constants.
 - Keep functions small and focused. Embrace KISS principle. Extract complex logic into well-named functions. Unless absolutely necessary, function should not be more than 150 lines of code.
