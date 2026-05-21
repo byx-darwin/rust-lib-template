@@ -2,7 +2,7 @@
 
 本教程说明“代码图谱 / 代码关系分析”类工具的用途，并基于 `colbymchenry/codegraph` 补充一个可落地的安装、初始化、更新和 Claude Code 接入参考。
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21
 
 ## 1. 本文对应的官方项目
 
@@ -462,4 +462,4 @@ codegraph status
 - 相关文档：[Ruflo Usage](./ruflo-usage.md)
 - 返回：[Documentation Index](./index.md)
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21

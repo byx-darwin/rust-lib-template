@@ -1,6 +1,6 @@
 # 高风险任务处理规范
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21
 
 定义：跨模块重构、公共库修改、协议兼容改动、安全逻辑修改、影响多个调用方的接口变更、高回归风险优化，默认视为高风险任务。
 
@@ -34,4 +34,4 @@ Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
 - 下一篇：[文档搜索索引](./search.md)
 - 返回：[SPARC 使用规范](./sparc-usage-guideline.md)
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21

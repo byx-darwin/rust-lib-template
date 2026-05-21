@@ -1,6 +1,6 @@
 # TDD 规范
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21
 
 团队统一约定：复杂任务禁止直接以 `tdd` 作为入口；正确方式是 `orchestrator/swarm-coordinator + TDD mandatory`。
 
@@ -35,4 +35,4 @@ Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
 - 下一篇：[高风险任务处理规范](./high-risk-task-guideline.md)
 - 返回：[SPARC 使用规范](./sparc-usage-guideline.md)
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21

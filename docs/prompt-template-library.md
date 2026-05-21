@@ -2,7 +2,7 @@
 
 用于团队内部统一提任务方式，减少入口误用与角色分工不清的问题。
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21
 
 ## 1. 小任务模板
 
@@ -51,4 +51,4 @@ Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21
 - 下一篇：[TDD 规范](./tdd-guideline.md)
 - 返回：[Documentation Index](./index.md)
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21

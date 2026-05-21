@@ -29,4 +29,4 @@ This directory contains reusable project documentation for the template reposito
 4. 涉及重构、安全、兼容性等高风险改动时，补充阅读 [高风险任务处理规范](./high-risk-task-guideline.md)。
 5. 需要快速定位主题时，使用 [文档搜索索引](./search.md)。
 
-Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
+Owner: baoyx · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21
