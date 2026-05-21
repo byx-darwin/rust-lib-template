@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>提示词模板库</title>
+  <style>
+    body{margin:0;background:#f5f7fb;color:#1f2937;font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif}
+    .topbar{background:#111827;color:#fff}.topbar .inner{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;gap:16px;align-items:center}.topbar nav{display:flex;gap:14px;flex-wrap:wrap}.topbar a{color:#e5e7eb}.topbar a.current{color:#fff;font-weight:700;border-bottom:2px solid #818cf8}
+    .wrap{max-width:920px;margin:32px auto;padding:0 20px}.actions{display:flex;justify-content:flex-end;margin-bottom:12px}.actions button{border:0;background:#4f46e5;color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer}.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+    h1,h2{color:#111827}code{background:#f3f4f6;padding:2px 6px;border-radius:6px}pre{white-space:pre-wrap;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
+    a{color:#4f46e5;text-decoration:none}.muted{color:#6b7280}.breadcrumbs{margin:0 0 14px;color:#6b7280;font-size:14px}.breadcrumbs a{color:#6b7280}.pager{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}.pager a{display:block;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:14px}.pager strong{display:block;color:#111827}.pager span{color:#6b7280;font-size:14px}
+    @media print{body{background:#fff}.topbar,.actions{display:none}.wrap{max-width:none;margin:0;padding:0}.card{border:0;box-shadow:none;padding:0}}
+  </style>
+</head>
+<body id="top"><header class="topbar"><div class="inner"><strong>SPARC Docs</strong><nav><a href="./index.html">首页</a><a href="./sparc-usage-guideline.html">使用规范</a><a class="current" href="./prompt-template-library.html">提示词模板库</a><a href="./tdd-guideline.html">TDD 规范</a><a href="./high-risk-task-guideline.html">高风险任务规范</a><a href="./search.html">站内搜索</a></nav></div></header><main class="wrap"><div class="actions"><button onclick="window.print()">打印 / 导出 PDF</button></div><article class="card">
+<p class="breadcrumbs"><a href="./index.html">首页</a> / <a href="./sparc-usage-guideline.html">SPARC 使用规范</a> / <span>提示词模板库</span></p>
+<h1>提示词模板库</h1><p class="muted">用于团队内部统一提任务方式，减少入口误用与角色分工不清的问题。</p><p class="muted">Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21</p>
+<h2>1. 小任务模板</h2><pre>使用 coder 处理这个小任务：[任务]
+范围限制在：[模块/文件]
+只完成当前目标，不做额外扩展。</pre>
+<h2>2. 常规复杂任务模板</h2><pre>使用 orchestrator 执行这个任务：[任务]
+请拆解阶段、分配角色、汇总结果。
+主入口 Agent 不要直接包办全部实现。</pre>
+<h2>3. 多智能体 TDD 模板</h2><pre>使用 orchestrator 执行这个 TDD 任务：[任务]
+按 tester → coder → reviewer 顺序推进。
+没有 failing tests 不得进入实现，没有 review clear 不得结束。</pre>
+<h2>4. 强制多智能体模板</h2><pre>使用 swarm-coordinator 接管这个高风险任务：[任务]
+请先拆分子任务，再委派执行。
+重点关注影响面、测试覆盖、回归风险和最终审查。</pre>
+<h2>5. 补测试模板</h2><pre>使用 tester 为这个任务补测试：[任务]
+目标范围：[模块/文件]
+优先覆盖正常路径、边界条件、错误路径。
+不要改业务逻辑，除非为了让测试可验证而必须做最小调整。</pre>
+<div class="pager"><a href="./sparc-usage-guideline.html"><strong>上一篇：SPARC 使用规范</strong><span>回到整体判断框架</span></a><a href="./tdd-guideline.html"><strong>下一篇：TDD 规范</strong><span>查看测试先行的具体门禁</span></a></div>
+<p>Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21 · <a href="#top">返回顶部</a> · <a href="./sparc-usage-guideline.html">返回《SPARC 使用规范》</a></p>
+</article></main></body></html>

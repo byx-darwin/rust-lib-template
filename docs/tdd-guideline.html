@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TDD 规范</title>
+  <style>
+    body{margin:0;background:#f5f7fb;color:#1f2937;font:16px/1.8 -apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",sans-serif}
+    .topbar{background:#111827;color:#fff}.topbar .inner{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;justify-content:space-between;gap:16px;align-items:center}.topbar nav{display:flex;gap:14px;flex-wrap:wrap}.topbar a{color:#e5e7eb}.topbar a.current{color:#fff;font-weight:700;border-bottom:2px solid #818cf8}
+    .wrap{max-width:920px;margin:32px auto;padding:0 20px}.actions{display:flex;justify-content:flex-end;margin-bottom:12px}.actions button{border:0;background:#4f46e5;color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer}.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+    h1,h2{color:#111827}code{background:#f3f4f6;padding:2px 6px;border-radius:6px}ul{padding-left:20px}a{color:#4f46e5;text-decoration:none}.callout{background:#eef2ff;border:1px solid #c7d2fe;padding:14px;border-radius:12px}.breadcrumbs{margin:0 0 14px;color:#6b7280;font-size:14px}.breadcrumbs a{color:#6b7280}.pager{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}.pager a{display:block;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:14px}.pager strong{display:block;color:#111827}.pager span{color:#6b7280;font-size:14px}
+    @media print{body{background:#fff}.topbar,.actions{display:none}.wrap{max-width:none;margin:0;padding:0}.card{border:0;box-shadow:none;padding:0}}
+  </style>
+</head>
+<body id="top"><header class="topbar"><div class="inner"><strong>SPARC Docs</strong><nav><a href="./index.html">首页</a><a href="./sparc-usage-guideline.html">使用规范</a><a href="./prompt-template-library.html">提示词模板库</a><a class="current" href="./tdd-guideline.html">TDD 规范</a><a href="./high-risk-task-guideline.html">高风险任务规范</a><a href="./search.html">站内搜索</a></nav></div></header><main class="wrap"><div class="actions"><button onclick="window.print()">打印 / 导出 PDF</button></div><article class="card">
+<p class="breadcrumbs"><a href="./index.html">首页</a> / <a href="./sparc-usage-guideline.html">SPARC 使用规范</a> / <span>TDD 规范</span></p>
+<h1>TDD 规范</h1><p style="color:#6b7280">Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21</p>
+<div class="callout"><strong>团队统一约定：</strong>复杂任务禁止直接以 <code>tdd</code> 作为入口；正确方式是 <code>orchestrator/swarm-coordinator + TDD mandatory</code>。</div>
+<h2>1. 推荐顺序</h2><ul><li><code>tester</code>：测试计划与 failing tests</li><li><code>coder</code>：基于测试实现</li><li><code>tester</code>：回归验证</li><li><code>reviewer</code>：最终审查</li></ul>
+<h2>2. 最小门禁</h2><ul><li><code>TEST_PLAN_READY</code></li><li><code>RED_CONFIRMED</code></li><li><code>IMPLEMENTATION_DONE</code></li><li><code>REVIEW_CLEAR</code></li></ul>
+<h2>3. 禁止事项</h2><ul><li>没有 failing tests 直接进入实现</li><li>主入口 Agent 跳过测试阶段自行编码</li><li>没有 review clear 就宣告完成</li></ul>
+<h2>4. 推荐提示词</h2><ul><li>使用 <code>orchestrator</code> 执行 [任务]，按 <code>tester → coder → reviewer</code> 顺序推进。</li><li>没有 failing tests 不得进入实现，没有 review clear 不得结束。</li></ul>
+<div class="pager"><a href="./prompt-template-library.html"><strong>上一篇：提示词模板库</strong><span>回看常用 TDD 提示词模板</span></a><a href="./high-risk-task-guideline.html"><strong>下一篇：高风险任务处理规范</strong><span>查看高风险任务的额外要求</span></a></div>
+<p>Owner：Engineering Productivity · 版本：v1.0 · 生效日期：2026-05-21 · 最后更新：2026-05-21 · <a href="#top">返回顶部</a> · <a href="./sparc-usage-guideline.html">返回《SPARC 使用规范》</a></p>
+</article></main></body></html>
