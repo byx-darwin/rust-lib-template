@@ -5,6 +5,7 @@ This directory contains reusable project documentation for the template reposito
 ## Agent workflow
 
 - [Ruflo Usage](./ruflo-usage.md) — how this template uses Ruflo for agent workflow and orchestration.
+- [CodeGraph Usage](./codegraph-usage.md) — 通用代码图谱/关系分析教程，用于快速理解仓库结构、调用链和影响面。
 
 ## Development workflow
 
