@@ -126,43 +126,45 @@ npx ruflo@latest agent list
 Create a 15-agent swarm for a large task:
 
 ```bash
-npx ruflo@latest swarm init --topology hierarchical --max-agents 15 --strategy specialized
-npx ruflo@latest agent spawn -t queen-coordinator --name template-coordinator
-npx ruflo@latest agent spawn -t planner --name requirement-planner
+npx ruflo@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx ruflo@latest agent spawn -t coordinator --name master-coordinator
 npx ruflo@latest agent spawn -t researcher --name prior-art-researcher
 npx ruflo@latest agent spawn -t architect --name rust-architect
+npx ruflo@latest agent spawn -t core-architect --name system-architect
 npx ruflo@latest agent spawn -t coder --name core-coder
-npx ruflo@latest agent spawn -t backend-dev --name app-coder
+npx ruflo@latest agent spawn -t coder --name app-coder
 npx ruflo@latest agent spawn -t tester --name test-engineer
+npx ruflo@latest agent spawn -t test-architect --name test-arch
 npx ruflo@latest agent spawn -t reviewer --name code-reviewer
 npx ruflo@latest agent spawn -t security-architect --name security-reviewer
-npx ruflo@latest agent spawn -t perf-analyzer --name performance-reviewer
+npx ruflo@latest agent spawn -t security-auditor --name security-auditor
 npx ruflo@latest agent spawn -t memory-specialist --name memory-curator
-npx ruflo@latest agent spawn -t cicd-engineer --name ci-engineer
-npx ruflo@latest agent spawn -t release-manager --name release-planner
-npx ruflo@latest agent spawn -t documenter --name docs-writer
-npx ruflo@latest agent spawn -t task-orchestrator --name validation-orchestrator
+npx ruflo@latest agent spawn -t performance-engineer --name performance-reviewer
+npx ruflo@latest agent spawn -t optimizer --name code-optimizer
+npx ruflo@latest agent spawn -t analyst --name requirement-analyst
+npx ruflo@latest agent spawn -t swarm-specialist --name swarm-coordinator
 ```
 
 If one type is unavailable, replace it with the closest type from `agent list`.
 
 | Agent | Role | Best used when |
 | --- | --- | --- |
-| `template-coordinator` | Keeps scope, order, and exit criteria aligned. | Any multi-agent workflow. |
-| `requirement-planner` | Turns rough asks into specs and milestones. | New features or unclear scope. |
+| `master-coordinator` | Keeps scope, order, and exit criteria aligned. | Any multi-agent workflow. |
 | `prior-art-researcher` | Compares crates, repos, and current practices. | Dependency or architecture decisions. |
 | `rust-architect` | Designs APIs, modules, invariants, and boundaries. | Public API or cross-crate changes. |
+| `system-architect` | Deeper system-level architecture and cross-cutting concerns. | Multi-subsystem or performance-critical designs. |
 | `core-coder` | Implements library/core crate changes. | Domain logic and reusable APIs. |
 | `app-coder` | Implements app/server or integration changes. | Binary, CLI, server, or adapter work. |
 | `test-engineer` | Adds unit, integration, and regression tests. | Any production code change. |
+| `test-arch` | Designs test strategy, harnesses, and test infrastructure. | Complex test setups or testing architecture. |
 | `code-reviewer` | Reviews correctness, maintainability, and drift. | Before declaring implementation done. |
 | `security-reviewer` | Checks trust boundaries, secrets, and unsafe patterns. | External input, auth, files, network, deps. |
-| `performance-reviewer` | Checks unnecessary allocations and hot paths. | Performance-sensitive or async code. |
+| `security-auditor` | Deep security audit: OWASP, supply-chain, dependency risk. | Pre-release or high-risk changes. |
 | `memory-curator` | Stores reusable decisions and lessons. | Multi-session work or repeated patterns. |
-| `ci-engineer` | Checks Makefile, hooks, and CI consistency. | Tooling, pre-commit, workflow changes. |
-| `release-planner` | Reviews changelog/release implications. | Versioning or public API changes. |
-| `docs-writer` | Updates docs, specs, and examples. | User-visible behavior or workflow changes. |
-| `validation-orchestrator` | Chooses and sequences validation gates. | Complex changes with many checks. |
+| `performance-reviewer` | Checks unnecessary allocations and hot paths. | Performance-sensitive or async code. |
+| `code-optimizer` | Applies targeted optimizations on identified hot paths. | Profile-confirmed bottlenecks. |
+| `requirement-analyst` | Turns rough asks into structured requirements and milestones. | New features or unclear scope. |
+| `swarm-coordinator` | Manages swarm topology, agent lifecycle, and coordination patterns. | Complex multi-agent orchestration. |
 
 Example prompt for this template:
 
@@ -181,7 +183,7 @@ Use Ruflo <swarm/workflow> with <agent roles>. Goal: <outcome>. Produce: <artifa
 Use the full 15-agent swarm only for broad work:
 
 ```text
-Use Ruflo 15-agent swarm for this repository maintenance task. Spawn coordinator, planner, researcher, architect, coder, app-coder, tester, reviewer, security, performance, memory, CI, release, docs, and validation agents. Goal: review the template workflow end to end and update only docs/config needed for consistency. Produce a findings list, an edit plan, applied changes, and validation results. Follow CLAUDE.md. Do not commit, push, release, or remove template placeholders.
+Use Ruflo 15-agent swarm for this repository maintenance task. Spawn coordinator, researcher, architect, core-architect, coders, tester, test-architect, reviewer, security, memory, performance, optimizer, analyst, and swarm-specialist. Goal: review the template workflow end to end and update only docs/config needed for consistency. Produce a findings list, an edit plan, applied changes, and validation results. Follow CLAUDE.md. Do not commit, push, release, or remove template placeholders.
 ```
 
 Use smaller role sets for focused tasks:
@@ -366,43 +368,45 @@ npx ruflo@latest agent list
 为大型任务创建 15 个智能体：
 
 ```bash
-npx ruflo@latest swarm init --topology hierarchical --max-agents 15 --strategy specialized
-npx ruflo@latest agent spawn -t queen-coordinator --name template-coordinator
-npx ruflo@latest agent spawn -t planner --name requirement-planner
+npx ruflo@latest swarm init --topology hierarchical-mesh --max-agents 15 --strategy specialized
+npx ruflo@latest agent spawn -t coordinator --name master-coordinator
 npx ruflo@latest agent spawn -t researcher --name prior-art-researcher
 npx ruflo@latest agent spawn -t architect --name rust-architect
+npx ruflo@latest agent spawn -t core-architect --name system-architect
 npx ruflo@latest agent spawn -t coder --name core-coder
-npx ruflo@latest agent spawn -t backend-dev --name app-coder
+npx ruflo@latest agent spawn -t coder --name app-coder
 npx ruflo@latest agent spawn -t tester --name test-engineer
+npx ruflo@latest agent spawn -t test-architect --name test-arch
 npx ruflo@latest agent spawn -t reviewer --name code-reviewer
 npx ruflo@latest agent spawn -t security-architect --name security-reviewer
-npx ruflo@latest agent spawn -t perf-analyzer --name performance-reviewer
+npx ruflo@latest agent spawn -t security-auditor --name security-auditor
 npx ruflo@latest agent spawn -t memory-specialist --name memory-curator
-npx ruflo@latest agent spawn -t cicd-engineer --name ci-engineer
-npx ruflo@latest agent spawn -t release-manager --name release-planner
-npx ruflo@latest agent spawn -t documenter --name docs-writer
-npx ruflo@latest agent spawn -t task-orchestrator --name validation-orchestrator
+npx ruflo@latest agent spawn -t performance-engineer --name performance-reviewer
+npx ruflo@latest agent spawn -t optimizer --name code-optimizer
+npx ruflo@latest agent spawn -t analyst --name requirement-analyst
+npx ruflo@latest agent spawn -t swarm-specialist --name swarm-coordinator
 ```
 
 如果某个类型不存在，用 `agent list` 里最接近的类型替换。
 
 | 智能体 | 作用 | 适用场景 |
 | --- | --- | --- |
-| `template-coordinator` | 控制范围、顺序和完成标准。 | 任何多智能体任务。 |
-| `requirement-planner` | 将粗略需求拆成规格和里程碑。 | 新功能或范围不清晰时。 |
+| `master-coordinator` | 控制范围、顺序和完成标准。 | 任何多智能体任务。 |
 | `prior-art-researcher` | 对比 crates、仓库和当前实践。 | 依赖或架构决策前。 |
 | `rust-architect` | 设计 API、模块、边界和不变量。 | 公共 API 或跨 crate 改动。 |
+| `system-architect` | 更深层系统级架构和跨关注点设计。 | 多子系统或性能敏感的架构设计。 |
 | `core-coder` | 实现 library/core crate 改动。 | 领域逻辑和可复用 API。 |
 | `app-coder` | 实现 app/server 或集成改动。 | binary、CLI、server、adapter。 |
 | `test-engineer` | 补充单元、集成和回归测试。 | 任何生产代码改动。 |
+| `test-arch` | 设计测试策略、测试框架和测试基础设施。 | 复杂测试架构或测试体系设计。 |
 | `code-reviewer` | 检查正确性、可维护性和实现漂移。 | 宣称完成前。 |
 | `security-reviewer` | 检查信任边界、secret 和不安全模式。 | 外部输入、认证、文件、网络、依赖。 |
-| `performance-reviewer` | 检查无谓分配和热点路径。 | 性能敏感或 async 代码。 |
+| `security-auditor` | 深度安全审计：OWASP、供应链、依赖风险。 | 发布前或高风险改动。 |
 | `memory-curator` | 记录可复用决策和经验。 | 跨会话或重复模式工作。 |
-| `ci-engineer` | 检查 Makefile、hooks、CI 一致性。 | 工具链、pre-commit、workflow 改动。 |
-| `release-planner` | 检查 changelog/release 影响。 | 版本或公共 API 改动。 |
-| `docs-writer` | 更新 docs、specs 和 examples。 | 用户可见行为或流程变化。 |
-| `validation-orchestrator` | 选择和排序验证门禁。 | 多检查项的复杂改动。 |
+| `performance-reviewer` | 检查无谓分配和热点路径。 | 性能敏感或 async 代码。 |
+| `code-optimizer` | 针对已确认热点进行定向优化。 | 性能分析已确认瓶颈。 |
+| `requirement-analyst` | 将粗略需求拆成结构化需求和里程碑。 | 新功能或范围不清晰时。 |
+| `swarm-coordinator` | 管理 swarm 拓扑、智能体生命周期和协作模式。 | 复杂多智能体编排。 |
 
 本模板仓库范例提示词：
 
@@ -421,7 +425,7 @@ npx ruflo@latest agent spawn -t task-orchestrator --name validation-orchestrator
 只有在范围较大的任务里才使用完整 15 个智能体：
 
 ```text
-使用 Ruflo 15-agent swarm 处理这个仓库维护任务。启用 coordinator、planner、researcher、architect、coder、app-coder、tester、reviewer、security、performance、memory、CI、release、docs、validation 这些角色。目标：端到端审查模板工作流，并且只更新保持一致性所需的 docs/config。产出问题列表、修改计划、实际变更和验证结果。遵守 CLAUDE.md。不要 commit、push、release，也不要替换模板占位符。
+使用 Ruflo 15-agent swarm 处理这个仓库维护任务。启用 coordinator、researcher、architect、core-architect、coders、tester、test-architect、reviewer、security、memory、performance、optimizer、analyst、swarm-specialist 这些角色。目标：端到端审查模板工作流，并且只更新保持一致性所需的 docs/config。产出问题列表、修改计划、实际变更和验证结果。遵守 CLAUDE.md。不要 commit、push、release，也不要替换模板占位符。
 ```
 
 聚焦任务用少量智能体即可：
