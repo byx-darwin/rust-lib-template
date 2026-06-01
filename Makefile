@@ -2,10 +2,16 @@
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-22s\033[0m %s\n", $$1, $$2}'
 
 build: ## Compile the project
 	@cargo build
+
+check: ## Fast compile check (no codegen)
+	@cargo check --workspace --all-targets --all-features
+
+run: ## Build and run the CLI with --help
+	@cargo run -- --help
 
 test: ## Run tests with nextest
 	@cargo nextest run --all-features
@@ -18,17 +24,49 @@ clippy: ## Lint with pedantic clippy rules
 
 lint: fmt clippy ## Run fmt and clippy
 
-install-tools: ## Install development toolchain (pre-commit, cargo-deny, cargo-audit, typos, gitleaks)
-	@pip install pre-commit 2>/dev/null || echo "Install pre-commit manually: https://pre-commit.com/#install"
-	@cargo install cargo-deny --locked 2>/dev/null || echo "cargo-deny already installed or install manually"
-	@cargo install cargo-audit --locked 2>/dev/null || echo "cargo-audit already installed or install manually"
-	@cargo install typos-cli 2>/dev/null || echo "typos already installed or install manually"
+audit: ## Run security audit (deps + supply chain)
+	@cargo deny check
+	@cargo audit
+
+install-tools: ## Install development toolchain
+	@pip install pre-commit 2>/dev/null || echo "Install pre-commit manually"
+	@cargo install cargo-deny --locked 2>/dev/null || true
+	@cargo install cargo-audit --locked 2>/dev/null || true
+	@cargo install cargo-vet --locked 2>/dev/null || true
+	@cargo install typos-cli 2>/dev/null || true
+	@cargo install cargo-release --locked 2>/dev/null || true
 	@which gitleaks >/dev/null 2>&1 || echo "Install gitleaks: https://github.com/gitleaks/gitleaks#installing"
 	@pre-commit install
-	@echo "Development tools installed. Run 'pre-commit run --all-files' to verify."
+	@echo "Run 'pre-commit run --all-files' to verify."
 
-bench: ## Run benchmarks with Criterion
+install: build ## Install the CLI binary locally
+	@cargo install --path apps/cli
+
+completions: build ## Generate shell completions (bash, zsh, fish)
+	@mkdir -p completions
+	@cargo run -- completions bash > completions/{{ project-name }}.bash
+	@cargo run -- completions zsh > completions/_{{ project-name }}.zsh
+	@cargo run -- completions fish > completions/{{ project-name }}.fish
+	@echo "Completions generated in ./completions/"
+
+bench: ## Run benchmarks
 	@cargo bench --workspace
+
+bench-cli: build ## Benchmark CLI binary with hyperfine
+	@which hyperfine >/dev/null 2>&1 || { echo "Install hyperfine first"; exit 1; }
+	@hyperfine --warmup 3 'cargo run -- --help'
+
+coverage: ## Generate test coverage report
+	@cargo llvm-cov --html --open
+
+docs: ## Generate and open API documentation
+	@cargo doc --no-deps --open
+
+release-dry-run: ## Preview release without executing
+	@cargo release --dry-run
+
+update-submodule: ## Update git submodules recursively
+	@git submodule update --init --recursive --remote
 
 check-agent-sync: ## Verify CLAUDE.md exists
 	@test -f CLAUDE.md || { \
@@ -36,14 +74,13 @@ check-agent-sync: ## Verify CLAUDE.md exists
 		exit 1; \
 	}
 
-release: ## Tag and publish a release with cargo-release and git-cliff
+release: ## Tag and publish a release
 	@cargo release tag --execute
 	@git cliff -o CHANGELOG.md
-	@git commit -a -n -m "Update CHANGELOG.md" || true
+	@git commit -a -n -m "chore: update CHANGELOG.md" || true
 	@git push origin master
 	@cargo release push --execute
 
-update-submodule: ## Update git submodules recursively
-	@git submodule update --init --recursive --remote
-
-.PHONY: help build test fmt clippy lint install-tools bench check-agent-sync release update-submodule
+.PHONY: help build check run test fmt clippy lint audit install-tools install \
+        completions bench bench-cli coverage docs release-dry-run \
+        update-submodule check-agent-sync release

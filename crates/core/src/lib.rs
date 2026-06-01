@@ -5,6 +5,7 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, missing_debug_implementations)]
 
+use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 /// Application error type.
@@ -25,6 +26,10 @@ pub enum CoreError {
     /// An application-level error with a custom message.
     #[error("application error: {0}")]
     App(String),
+
+    /// A path traversal or path validation failure.
+    #[error("path error: {0}")]
+    Path(String),
 }
 
 /// Core result type alias.
@@ -68,6 +73,49 @@ impl Config {
     }
 }
 
+/// A validated, safe filesystem path.
+///
+/// Rejects `..` components, absolute paths, and null bytes.
+/// Use this for all externally-supplied file path arguments.
+#[derive(Debug, Clone)]
+pub struct SafePath(PathBuf);
+
+impl SafePath {
+    /// Creates a new `SafePath` from a relative path string.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CoreError::Path`] if:
+    /// - The path contains `..` components
+    /// - The path is absolute
+    /// - The path contains null bytes
+    pub fn new(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref();
+        if path.is_absolute() {
+            return Err(CoreError::Path("absolute paths are not allowed".into()));
+        }
+        if path.components().any(|c| c == std::path::Component::ParentDir) {
+            return Err(CoreError::Path("'..' components are not allowed".into()));
+        }
+        if path.as_os_str().as_encoded_bytes().contains(&b'\0') {
+            return Err(CoreError::Path("null bytes are not allowed".into()));
+        }
+        Ok(Self(path.to_path_buf()))
+    }
+
+    /// Returns the inner path.
+    #[must_use]
+    pub fn as_path(&self) -> &Path {
+        &self.0
+    }
+}
+
+impl AsRef<Path> for SafePath {
+    fn as_ref(&self) -> &Path {
+        &self.0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -106,5 +154,27 @@ mod tests {
         let serde_err = serde_json::Error::io(io_err);
         let core_err = CoreError::from(serde_err);
         assert!(matches!(core_err, CoreError::Serialization(_)));
+    }
+
+    #[test]
+    fn test_safe_path_accepts_relative() -> Result<()> {
+        let sp = SafePath::new("foo/bar.txt")?;
+        assert_eq!(sp.as_path(), Path::new("foo/bar.txt"));
+        Ok(())
+    }
+
+    #[test]
+    fn test_safe_path_rejects_absolute() {
+        assert!(matches!(SafePath::new("/etc/passwd"), Err(CoreError::Path(_))));
+    }
+
+    #[test]
+    fn test_safe_path_rejects_parent_dir() {
+        assert!(matches!(SafePath::new("../secret.txt"), Err(CoreError::Path(_))));
+    }
+
+    #[test]
+    fn test_safe_path_rejects_null_byte() {
+        assert!(matches!(SafePath::new("foo\0bar.txt"), Err(CoreError::Path(_))));
     }
 }

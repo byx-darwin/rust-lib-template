@@ -23,3 +23,8 @@ exclude = [
     "*.key",
     "secrets/",
 ]
+
+[placeholders]
+project-name = { prompt = "Project name (kebab-case)", type = "string", default = "my-cli" }
+authors = { prompt = "Author name <email>", type = "string", default = "Your Name <you@example.com>" }
+description = { prompt = "Short description", type = "string", default = "A Rust CLI tool" }

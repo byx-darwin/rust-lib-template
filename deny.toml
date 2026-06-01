@@ -187,25 +187,15 @@ deny = [
 # List of features to allow/deny
 # Each entry the name of a crate and a version range. If version is
 # not specified, all versions will be matched.
-#[[bans.features]]
-#crate = "reqwest"
-# Features to not allow
-#deny = ["json"]
-# Features to allow
-#allow = [
-#    "rustls",
-#    "__rustls",
-#    "__tls",
-#    "hyper-rustls",
-#    "rustls",
-#    "rustls-pemfile",
-#    "rustls-tls-webpki-roots",
-#    "tokio-rustls",
-#    "webpki-roots",
-#]
-# If true, the allowed features must exactly match the enabled feature set. If
-# this is set there is no point setting `deny`
-#exact = true
+[[bans.features]]
+crate = "reqwest"
+deny = ["native-tls", "native-tls-alpn", "native-tls-vendored", "default-tls"]
+wrappers = []
+
+# Deny specific crates for security reasons
+[[bans]]
+name = "openssl-sys"
+deny = ["security"]
 
 # Certain crates/versions that will be skipped when doing duplicate detection.
 skip = [

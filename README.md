@@ -1,34 +1,49 @@
-![](https://github.com/byx-darwin/rust-lib-template/workflows/build/badge.svg)
-
 # {{ project-name }}
 
-description of the crate
+[![CI](https://github.com/byx-darwin/rust-lib-template/actions/workflows/build.yml/badge.svg)](https://github.com/byx-darwin/rust-lib-template/actions/workflows/build.yml)
 
-## How to use it
+A Rust CLI tool built from the [rust-lib-template](https://github.com/byx-darwin/rust-lib-template).
+
+## Quickstart
 
 ```bash
-cargo generate --git https://github.com/byx-darwin/rust-lib-template
+# Install
+cargo install --path apps/cli
+
+# Run
+{{ project-name }} --help
+{{ project-name }} run
+
+# Generate shell completions
+{{ project-name }} completions bash
 ```
 
-## Agent support
+## Development
 
-This template keeps agent-facing guidance for Claude:
+```bash
+# Install dev tools
+make install-tools
 
-- `CLAUDE.md` for Claude Code project instructions.
-- Ruflo for agent workflow and orchestration.
+# Build and test
+make build
+make test
+make lint
 
-See [`docs/ruflo-usage.md`](./docs/ruflo-usage.md) for the repository policy and daily workflow.
+# Run locally
+make run
+```
 
-## Development workflow
+## Configuration
 
-- [`docs/pre-commit-usage.md`](./docs/pre-commit-usage.md) explains how to install and run pre-commit hooks.
+{{ project-name }} reads config from:
 
-Have fun with this crate!
+1. Built-in defaults
+2. `$XDG_CONFIG_HOME/{{ project-name }}/config.toml`
+3. Environment variables prefixed with `{{ project-name | upper_case }}_`
+4. CLI flags (highest priority)
+
+See [docs/config.md](docs/config.md) for details.
 
 ## License
 
-This project is distributed under the terms of MIT.
-
-See [LICENSE](LICENSE.md) for details.
-
-Copyright 2025 byx-darwin
+MIT — see [LICENSE.md](LICENSE.md).
