@@ -16,6 +16,14 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 - Remove dead code instead of suppressing it. Do not add deprecation layers unless explicitly requested.
 - Never expose secrets in commands, logs, URLs, comments, errors, or tool arguments.
 
+### Completion Discipline
+
+- **Do Not Stop Early**: If the user's requested outcome is not fully complete, do not stop at a draft, partial pass, or "good enough" result. Continue reviewing and improving until the request is genuinely handled or a concrete blocker requires user input.
+- **Polish Bar**: Before declaring work complete, ask whether the result is fully polished, concrete, correct, complete, and elegant. If there is doubt, review the work again and update it.
+- **Honest Status**: Do not claim a task is finished when it is only a first pass, scaffold, or partial draft. State the remaining gaps and keep working unless the user explicitly asks to pause.
+
+### Code Quality
+
 ## Working Process
 
 - Start by understanding the relevant files, symbols, tests, and specs before editing.
@@ -37,12 +45,26 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 
 ## Rust Baseline
 
+## Rust Baseline
+
 - Use Rust 2024 and the pinned toolchain in `rust-toolchain.toml`.
 - Keep workspace-wide lint policy in `Cargo.toml` via `[workspace.lints]` when possible.
 - Forbid unsafe code at crate roots with `#![forbid(unsafe_code)]`.
 - Enable core lint coverage such as `missing_docs` and `missing_debug_implementations`.
 - All public items require documentation, including examples where useful and `# Errors`, `# Panics`, or `# Safety` sections when applicable.
 - Derive or implement `Debug` for all types; redact sensitive fields manually.
+
+## Toolchain & Build
+
+- Always use Rust 2024 edition with latest stable version. Pin version in `rust-toolchain.toml`.
+- Verification must be scoped to the change, not run mechanically. Before finishing, inspect the diff and run the smallest meaningful checks that can catch regressions in the touched surface. Explain any skipped heavyweight gate.
+- Run the full Rust gate set (`cargo build`, `cargo test`, `cargo +nightly fmt`, and `cargo clippy -- -D warnings`) when Rust source, public Rust APIs, tests, examples, build scripts, feature flags, workspace manifests, or generated Rust artifacts change.
+- Use `cargo clippy -- -D warnings -W clippy::pedantic` for stricter linting on Rust code changes where it adds signal. Allow specific lints with justification.
+- Run `cargo audit` and `cargo deny check` when dependencies, lockfiles, license policy, supply-chain configuration, or release packaging change. Otherwise run them periodically, not for unrelated documentation edits.
+- For documentation/spec/skill-only changes that do not alter Rust code, APIs, Cargo manifests, examples/doctests, generated artifacts, or release packaging, do not run Rust build/test/clippy. Validate the changed artifacts instead: proofread rendered Markdown as needed, check touched links/indexes, run `make check-agent-sync` for AGENTS/CLAUDE/skill edits, and run skill validation when skill folders change.
+- If unsure whether code behavior is affected, choose the narrowest Rust command that answers the question first (for example `cargo test -p <crate> <test>` or `cargo check -p <crate>`) and broaden only when the result warrants it.
+- Enable all rustc lints in Cargo.toml: `#![warn(rust_2024_compatibility, missing_docs, missing_debug_implementations)]`.
+- DO NOT use `cargo clean` at any time. If you indeed need it, ask user for permission
 
 ## Error Handling
 
