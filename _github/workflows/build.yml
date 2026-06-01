@@ -44,6 +44,10 @@ jobs:
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: install nextest
         uses: taiki-e/install-action@nextest
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@cargo-deny
+      - name: Install cargo-audit
+        uses: taiki-e/install-action@cargo-audit
       - uses: Swatinem/rust-cache@v2
       # - name: Install Protoc
       #   uses: arduino/setup-protoc@v2
@@ -53,6 +57,10 @@ jobs:
         run: cargo check --all
       - name: Lint rust sources
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
+      - name: Check dependency licenses and advisories
+        run: cargo deny check
+      - name: Check for known security vulnerabilities
+        run: cargo audit
       - name: Execute rust tests
         run: cargo nextest run --all-features
 

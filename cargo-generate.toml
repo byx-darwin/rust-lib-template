@@ -1,2 +1,25 @@
 [template]
-exclude = ["cliff.toml", ".cursor/*", ".claude/*"]
+exclude = [
+    # Tool-specific configs (not needed in generated projects)
+    "cliff.toml",
+    ".cursor/*",
+    ".claude/*",
+    ".idea/*",
+    ".pre-commit-config.yaml",
+    "_typos.toml",
+    ".tokeignore",
+    # Team-specific agent docs and scripts
+    "docs/sparc-*.md",
+    "docs/tdd-guideline.md",
+    "docs/high-risk-task-guideline.md",
+    "docs/prompt-template-library.md",
+    "docs/ruflo-usage.md",
+    "docs/search.md",
+    "docs/codegraph-usage.md",
+    "scripts/*",
+    # Runtime artifacts
+    ".env*",
+    "*.pem",
+    "*.key",
+    "secrets/",
+]
