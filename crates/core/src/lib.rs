@@ -385,4 +385,67 @@ mod tests {
         assert_eq!(sp.as_path().as_os_str().len(), 255);
         Ok(())
     }
+
+    // ── TDD examples with rstest ─────────────────────────────
+
+    #[cfg(feature = "rstest")]
+    mod rstest_examples {
+        use rstest::rstest;
+
+        use super::*;
+
+        #[rstest]
+        #[case("foo.txt", true)]
+        #[case("bar/baz.txt", true)]
+        #[case("/etc/passwd", false)]
+        #[case("../secret", false)]
+        #[case("file\0null.txt", false)]
+        fn test_should_validate_safe_path(#[case] input: &str, #[case] should_pass: bool) {
+            let result = SafePath::new(input);
+            assert_eq!(result.is_ok(), should_pass);
+        }
+    }
+
+    // ── TDD examples with proptest ───────────────────────────
+
+    #[cfg(feature = "proptest")]
+    mod proptest_examples {
+        use proptest::prelude::*;
+
+        use super::*;
+
+        proptest! {
+            /// Valid relative paths should always be accepted.
+            #[test]
+            fn test_should_accept_valid_relative_paths(
+                name in "[a-zA-Z0-9._-]{1,32}"
+            ) {
+                let result = SafePath::new(&name);
+                prop_assert!(result.is_ok());
+            }
+
+            /// Absolute paths should always be rejected.
+            #[test]
+            fn test_should_reject_absolute_paths(
+                rest in "[a-zA-Z0-9/._-]{0,32}"
+            ) {
+                let path = format!("/{rest}");
+                let result = SafePath::new(&path);
+                prop_assert!(result.is_err());
+            }
+
+            /// Config names should never be empty.
+            #[test]
+            fn test_should_reject_empty_config_name(
+                name in ".*"
+            ) {
+                let result = Config::new(&name);
+                if name.is_empty() {
+                    prop_assert!(result.is_err());
+                } else {
+                    prop_assert!(result.is_ok());
+                }
+            }
+        }
+    }
 }

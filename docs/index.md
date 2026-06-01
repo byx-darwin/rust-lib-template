@@ -9,6 +9,7 @@
 
 ## Development
 
+- [TDD Guide](./tdd.md) — test-driven development workflow with `make test-watch`.
 - [Pre-commit Usage](./pre-commit-usage.md) — how to install and run repository pre-commit hooks.
 - [Release](./release.md) — release checklist, changelog, and distribution packaging.
 

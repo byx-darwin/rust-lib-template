@@ -127,14 +127,23 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 - Validate deserialized data immediately, with custom deserializers or validated newtypes when needed.
 - Prefer the `config` crate and YAML files for runtime-tunable configuration; keep compile-time constants in code.
 
-## Testing
+## Testing (TDD)
 
-- Add or update tests with every behavior change.
-- Put unit tests in the same file under `#[cfg(test)] mod tests`; use `tests/` for integration tests.
-- Name tests with `test_should_...` and cover error paths explicitly with `matches!` where appropriate.
-- Use `rstest` for parameterized cases and `proptest` for invariants.
+Follow TDD for every feature and bug fix. The cycle is: **RED → GREEN → REFACTOR**.
+
+### Mandatory workflow
+- **RED first**: Write a failing test that describes the expected behavior BEFORE writing implementation.
+- **GREEN second**: Write the minimal code to make the test pass. Do not write extra logic.
+- **REFACTOR third**: Clean up code while keeping tests green. Run `make lint` after.
+- Run `make test` to confirm each stage. Use `make test-watch` during active development.
+
+### Test conventions
+- Name tests `test_should_<expected_behavior>`.
+- Put unit tests in the same file under `#[cfg(test)] mod tests`.
+- Cover error paths with `matches!()`. Every fallible function must have both success and failure test cases.
+- Use `rstest` for parameterized cases (`#[case]`). Use `proptest` for invariants (`proptest!`).
 - Use `mockall` or `wiremock` only when isolation is valuable; prefer fast real implementations.
-- Use doc tests for public examples. Mark slow tests `#[ignore]` and run them in CI when relevant.
+- Doc tests for public examples. Mark slow tests `#[ignore]`.
 
 ## Logging and Observability
 

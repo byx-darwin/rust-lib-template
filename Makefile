@@ -54,6 +54,9 @@ completions: build ## Generate shell completions (bash, zsh, fish)
 watch: ## Watch for changes and check (requires cargo-watch)
 	@cargo watch -x check
 
+test-watch: ## Watch for changes and run tests (TDD mode)
+	@cargo watch -x "nextest run --all-features"
+
 bench: ## Run benchmarks
 	@cargo bench --workspace
 
@@ -86,6 +89,6 @@ release: ## Tag and publish a release
 	@git push origin master
 	@cargo release push --execute
 
-.PHONY: help build check run test fmt clippy lint audit install-tools install \
+.PHONY: help build check run test test-watch fmt clippy lint audit install-tools install \
         completions watch bench bench-cli coverage docs release-dry-run \
         update-submodule check-agent-sync release
