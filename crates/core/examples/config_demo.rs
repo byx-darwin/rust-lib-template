@@ -1,0 +1,16 @@
+//! Example: using the `Config` type from the core library.
+
+use {{ project-name }}_core::{Config, Result};
+
+fn main() -> Result<()> {
+    let config = Config::new("my-app")?.with_description("A demo configuration");
+
+    println!("config: {config:?}");
+    println!("  name: {}", config.name);
+    println!(
+        "  description: {}",
+        config.description.as_deref().unwrap_or("(none)")
+    );
+
+    Ok(())
+}

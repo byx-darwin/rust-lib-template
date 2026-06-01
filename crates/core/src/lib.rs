@@ -12,6 +12,7 @@ use thiserror::Error;
 /// Library functions return this error type. Use `thiserror` for
 /// derive macros and proper error context.
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum CoreError {
     /// An I/O operation failed.
     #[error("io error: {0}")]
@@ -34,6 +35,7 @@ pub type Result<T> = std::result::Result<T, CoreError>;
 /// Implements `Debug`, uses `typed-builder` style for structs
 /// with many fields, and validates input at construction.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub struct Config {
     /// Configuration name, non-empty.
     pub name: String,

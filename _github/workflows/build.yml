@@ -17,7 +17,7 @@ jobs:
   build-rust:
     strategy:
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     # services:
     #   postgres:
@@ -52,14 +52,17 @@ jobs:
       # - name: Install Protoc
       #   uses: arduino/setup-protoc@v2
       - name: Check code format
-        run: cargo fmt --all -- --check
+        if: runner.os == 'Linux'
+        run: cargo +nightly fmt -- --check
       - name: Check the package for errors
         run: cargo check --all
       - name: Lint rust sources
         run: cargo clippy --all-targets --all-features --tests --benches -- -D warnings
       - name: Check dependency licenses and advisories
+        if: runner.os == 'Linux'
         run: cargo deny check
       - name: Check for known security vulnerabilities
+        if: runner.os == 'Linux'
         run: cargo audit
       - name: Execute rust tests
         run: cargo nextest run --all-features
