@@ -7,7 +7,7 @@ description of the crate
 ## How to use it
 
 ```bash
-$ cargo generate --git https://github.com/byx-darwin/rust-lib-template
+cargo generate --git https://github.com/byx-darwin/rust-lib-template
 ```
 
 ## Agent support
