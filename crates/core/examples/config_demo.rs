@@ -6,10 +6,10 @@ fn main() -> Result<()> {
     let config = Config::new("my-app")?.with_description("A demo configuration");
 
     println!("config: {config:?}");
-    println!("  name: {}", config.name);
+    println!("  name: {}", config.name());
     println!(
         "  description: {}",
-        config.description.as_deref().unwrap_or("(none)")
+        config.description().unwrap_or("(none)")
     );
 
     Ok(())

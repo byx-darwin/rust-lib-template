@@ -45,8 +45,6 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 
 ## Rust Baseline
 
-## Rust Baseline
-
 - Use Rust 2024 and the pinned toolchain in `rust-toolchain.toml`.
 - Keep workspace-wide lint policy in `Cargo.toml` via `[workspace.lints]` when possible.
 - Forbid unsafe code at crate roots with `#![forbid(unsafe_code)]`.
@@ -70,7 +68,7 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 
 - Never use `unwrap()` or `expect()` in production code.
 - Return `Result<T>` for fallible operations; do not use `Option<T>` to hide errors.
-- Use `thiserror` for library or domain error enums and `anyhow` for application-level context.
+- Use `thiserror` for library or domain error enums and `miette` for application-level CLI error reporting. `anyhow` is available as a workspace dependency for non-CLI application code; prefer `miette` for binaries that render diagnostics to a terminal.
 - Add context with `.context()` or `.with_context()` when propagating errors.
 - Panics are acceptable only for truly unrecoverable application bugs, never for library errors or external input.
 
@@ -102,6 +100,7 @@ This repository is a reusable Rust 2024 workspace template. These rules are mand
 - Bound all externally supplied strings by byte length, all collections by element count, and all numbers by explicit ranges.
 - Use charset allowlists for identifiers and slugs; avoid blocklists.
 - Prevent path traversal by rejecting `..`, absolute paths, NUL bytes, and separators before canonicalization.
+- Use the `SafePath` type from `{{ project-name }}-core` for all externally-supplied file path arguments. It validates at construction time.
 - Prevent SSRF by parsing URLs, allowlisting schemes, rejecting private, loopback, and link-local targets, and pinning resolved IPs.
 - Use parameterized database APIs; never format user input into SQL.
 - Use argv-form process execution; never concatenate user input into shell commands.

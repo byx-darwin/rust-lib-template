@@ -47,8 +47,8 @@ pub async fn run(args: RunArgs) -> Result<()> {
     };
 
     tracing::info!(
-        name = %core_config.name,
-        has_description = core_config.description.is_some(),
+        name = %core_config.name(),
+        has_description = core_config.description().is_some(),
         "Configuration loaded"
     );
 

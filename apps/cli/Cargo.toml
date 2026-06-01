@@ -15,13 +15,15 @@ clap = { workspace = true, features = ["derive", "env"] }
 clap_complete = { workspace = true }
 miette = { workspace = true, features = ["fancy"] }
 dirs = { workspace = true }
-libc = { workspace = true }
 toml = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["env-filter", "json"] }
 is-terminal = { workspace = true }
 serde = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
 [build-dependencies]
 built = "0.7"

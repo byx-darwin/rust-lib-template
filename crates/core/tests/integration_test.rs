@@ -3,8 +3,8 @@ use {{ project-name }}_core::{Config, CoreError, Result};
 #[test]
 fn integration_config_roundtrip() -> Result<()> {
     let config = Config::new("integration-test")?.with_description("test config");
-    assert_eq!(config.name, "integration-test");
-    assert_eq!(config.description.as_deref(), Some("test config"));
+    assert_eq!(config.name(), "integration-test");
+    assert_eq!(config.description(), Some("test config"));
     Ok(())
 }
 

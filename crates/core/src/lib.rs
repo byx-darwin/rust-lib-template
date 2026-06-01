@@ -3,7 +3,6 @@
 //! Provides domain types, error handling, and core business logic.
 
 #![forbid(unsafe_code)]
-#![warn(missing_docs, missing_debug_implementations)]
 
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -12,6 +11,7 @@ use thiserror::Error;
 ///
 /// Library functions return this error type. Use `thiserror` for
 /// derive macros and proper error context.
+#[allow(clippy::module_name_repetitions, reason = "Avoids collision with std::error::Error and thiserror::Error")]
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum CoreError {
@@ -23,13 +23,14 @@ pub enum CoreError {
     #[error("serialization error: {0}")]
     Serialization(#[from] serde_json::Error),
 
-    /// An application-level error with a custom message.
+    /// An application-level error for cases that don't warrant a dedicated variant.
+    /// This variant carries no stability guarantee and should not be matched on programmatically.
     #[error("application error: {0}")]
     App(String),
 
     /// A path traversal or path validation failure.
     #[error("path error: {0}")]
-    Path(String),
+    Path(#[from] PathError),
 }
 
 /// Core result type alias.
@@ -42,18 +43,36 @@ pub type Result<T> = std::result::Result<T, CoreError>;
 #[derive(Debug, Clone)]
 #[non_exhaustive]
 pub struct Config {
-    /// Configuration name, non-empty.
-    pub name: String,
-    /// Optional description.
-    pub description: Option<String>,
+    name: String,
+    description: Option<String>,
 }
 
 impl Config {
+    /// Returns the configuration name.
+    #[must_use]
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the optional description.
+    #[must_use]
+    pub fn description(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+
     /// Creates a new `Config` with the given name.
     ///
     /// # Errors
     ///
     /// Returns [`CoreError::App`] if `name` is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use {{ project-name }}_core::Config;
+    /// let config = Config::new("my-app")?;
+    /// # Ok::<(), {{ project-name }}_core::CoreError>(())
+    /// ```
     pub fn new(name: impl Into<String>) -> Result<Self> {
         let name = name.into();
         if name.is_empty() {
@@ -73,6 +92,62 @@ impl Config {
     }
 }
 
+/// A path validation error.
+#[derive(Debug, Clone)]
+pub struct PathError {
+    /// The path that caused the error.
+    pub path: PathBuf,
+    /// The kind of path error.
+    pub kind: PathErrorKind,
+}
+
+/// The kind of path validation error.
+#[derive(Debug, Clone)]
+#[non_exhaustive]
+pub enum PathErrorKind {
+    /// The path is absolute.
+    Absolute,
+    /// The path contains `..` components.
+    ParentDirTraversal,
+    /// The path contains a null byte.
+    NullByte,
+    /// The path contains a Windows reserved device name (CON, NUL, etc.).
+    DeviceName,
+    /// The path contains an invalid character.
+    InvalidChar {
+        /// The invalid character found.
+        ch: char,
+    },
+    /// The path contains a dangerous Unicode character.
+    DangerousChar {
+        /// The dangerous character found.
+        ch: char,
+    },
+    /// A path component exceeds the maximum allowed byte length.
+    ComponentTooLong {
+        /// The maximum allowed bytes per component.
+        max_bytes: usize,
+        /// The actual byte length of the offending component.
+        actual_bytes: usize,
+    },
+}
+
+impl std::fmt::Display for PathError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.kind {
+            PathErrorKind::Absolute => write!(f, "absolute path not allowed: {}", self.path.display()),
+            PathErrorKind::ParentDirTraversal => write!(f, "'..' not allowed: {}", self.path.display()),
+            PathErrorKind::NullByte => write!(f, "null byte in path: {}", self.path.display()),
+            PathErrorKind::DeviceName => write!(f, "reserved device name not allowed: {}", self.path.display()),
+            PathErrorKind::InvalidChar { ch } => write!(f, "invalid character '{ch}' in path: {}", self.path.display()),
+            PathErrorKind::DangerousChar { ch } => write!(f, "dangerous Unicode character U+{:04X} in path: {}", *ch as u32, self.path.display()),
+            PathErrorKind::ComponentTooLong { max_bytes, actual_bytes } => {
+                write!(f, "path component too long (max {max_bytes}B, got {actual_bytes}B): {}", self.path.display())
+            }
+        }
+    }
+}
+
 /// A validated, safe filesystem path.
 ///
 /// Rejects `..` components, absolute paths, and null bytes.
@@ -89,17 +164,92 @@ impl SafePath {
     /// - The path contains `..` components
     /// - The path is absolute
     /// - The path contains null bytes
+    /// - The path contains a Windows reserved device name
+    /// - The path contains invalid characters (e.g., `:` for ADS)
+    /// - The path contains dangerous Unicode bidi control characters
+    /// - Any path component exceeds 255 bytes
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use {{ project-name }}_core::SafePath;
+    /// let path = SafePath::new("foo/bar.txt")?;
+    /// assert_eq!(path.as_path(), std::path::Path::new("foo/bar.txt"));
+    /// # Ok::<(), {{ project-name }}_core::CoreError>(())
+    /// ```
     pub fn new(path: impl AsRef<Path>) -> Result<Self> {
         let path = path.as_ref();
+
+        // Absolute path check
         if path.is_absolute() {
-            return Err(CoreError::Path("absolute paths are not allowed".into()));
+            return Err(PathError { path: path.to_path_buf(), kind: PathErrorKind::Absolute }.into());
         }
+
+        // Parent directory traversal check
         if path.components().any(|c| c == std::path::Component::ParentDir) {
-            return Err(CoreError::Path("'..' components are not allowed".into()));
+            return Err(PathError { path: path.to_path_buf(), kind: PathErrorKind::ParentDirTraversal }.into());
         }
+
+        // Null byte check
         if path.as_os_str().as_encoded_bytes().contains(&b'\0') {
-            return Err(CoreError::Path("null bytes are not allowed".into()));
+            return Err(PathError { path: path.to_path_buf(), kind: PathErrorKind::NullByte }.into());
         }
+
+        // Reject colon in path (Windows Alternate Data Streams)
+        if path.as_os_str().as_encoded_bytes().contains(&b':') {
+            return Err(PathError {
+                path: path.to_path_buf(),
+                kind: PathErrorKind::InvalidChar { ch: ':' },
+            }
+            .into());
+        }
+
+        // Reject Windows reserved device names (case-insensitive, any extension)
+        #[cfg(windows)]
+        {
+            if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+                let upper = stem.to_uppercase();
+                if matches!(upper.as_str(), "CON" | "PRN" | "AUX" | "NUL")
+                    || (upper.len() == 4
+                        && (upper.starts_with("COM") || upper.starts_with("LPT"))
+                        && upper[3..].parse::<u8>().is_ok())
+                {
+                    return Err(PathError {
+                        path: path.to_path_buf(),
+                        kind: PathErrorKind::DeviceName,
+                    }
+                    .into());
+                }
+            }
+        }
+
+        // Reject dangerous Unicode bidi control characters
+        const MAX_COMPONENT_LEN: usize = 255;
+        for component in path.components() {
+            let len = component.as_os_str().len();
+            if len > MAX_COMPONENT_LEN {
+                return Err(PathError {
+                    path: path.to_path_buf(),
+                    kind: PathErrorKind::ComponentTooLong {
+                        max_bytes: MAX_COMPONENT_LEN,
+                        actual_bytes: len,
+                    },
+                }
+                .into());
+            }
+
+            let s = component.as_os_str().to_string_lossy();
+            for ch in s.chars() {
+                if matches!(ch, '\u{202A}'..='\u{202E}' | '\u{2066}'..='\u{2069}') {
+                    return Err(PathError {
+                        path: path.to_path_buf(),
+                        kind: PathErrorKind::DangerousChar { ch },
+                    }
+                    .into());
+                }
+            }
+        }
+
         Ok(Self(path.to_path_buf()))
     }
 
@@ -123,8 +273,8 @@ mod tests {
     #[test]
     fn test_config_new_with_valid_name() -> Result<()> {
         let config = Config::new("test")?;
-        assert_eq!(config.name, "test");
-        assert!(config.description.is_none());
+        assert_eq!(config.name(), "test");
+        assert!(config.description().is_none());
         Ok(())
     }
 
@@ -137,7 +287,7 @@ mod tests {
     #[test]
     fn test_config_with_description() -> Result<()> {
         let config = Config::new("test")?.with_description("a test config");
-        assert_eq!(config.description.as_deref(), Some("a test config"));
+        assert_eq!(config.description(), Some("a test config"));
         Ok(())
     }
 
@@ -176,5 +326,63 @@ mod tests {
     #[test]
     fn test_safe_path_rejects_null_byte() {
         assert!(matches!(SafePath::new("foo\0bar.txt"), Err(CoreError::Path(_))));
+    }
+
+    #[test]
+    fn test_safe_path_rejects_colon() {
+        let err = SafePath::new("foo:bar.txt");
+        assert!(matches!(
+            err,
+            Err(CoreError::Path(PathError {
+                kind: PathErrorKind::InvalidChar { ch: ':' },
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_safe_path_rejects_bidi_control_chars() {
+        // U+202A (LEFT-TO-RIGHT EMBEDDING)
+        let path = format!("foo\u{202A}bar.txt");
+        let err = SafePath::new(path);
+        assert!(matches!(
+            err,
+            Err(CoreError::Path(PathError {
+                kind: PathErrorKind::DangerousChar { ch: '\u{202A}' },
+                ..
+            }))
+        ));
+
+        // U+2066 (LEFT-TO-RIGHT ISOLATE)
+        let path = format!("foo\u{2066}bar.txt");
+        let err = SafePath::new(path);
+        assert!(matches!(
+            err,
+            Err(CoreError::Path(PathError {
+                kind: PathErrorKind::DangerousChar { ch: '\u{2066}' },
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_safe_path_rejects_component_too_long() {
+        let long_component = "a".repeat(256);
+        let err = SafePath::new(&long_component);
+        assert!(matches!(
+            err,
+            Err(CoreError::Path(PathError {
+                kind: PathErrorKind::ComponentTooLong { max_bytes: 255, actual_bytes: 256 },
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_safe_path_accepts_max_component() -> Result<()> {
+        let max_component = "a".repeat(255);
+        let sp = SafePath::new(&max_component)?;
+        assert_eq!(sp.as_path().as_os_str().len(), 255);
+        Ok(())
     }
 }

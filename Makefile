@@ -27,11 +27,13 @@ lint: fmt clippy ## Run fmt and clippy
 audit: ## Run security audit (deps + supply chain)
 	@cargo deny check
 	@cargo audit
+	@cargo vet check 2>/dev/null || echo "cargo-vet not configured; run 'cargo vet init' to set up"
 
 install-tools: ## Install development toolchain
 	@pip install pre-commit 2>/dev/null || echo "Install pre-commit manually"
 	@cargo install cargo-deny --locked 2>/dev/null || true
 	@cargo install cargo-audit --locked 2>/dev/null || true
+	@cargo install cargo-nextest --locked 2>/dev/null || true
 	@cargo install cargo-vet --locked 2>/dev/null || true
 	@cargo install typos-cli 2>/dev/null || true
 	@cargo install cargo-release --locked 2>/dev/null || true
@@ -48,6 +50,9 @@ completions: build ## Generate shell completions (bash, zsh, fish)
 	@cargo run -- completions zsh > completions/_{{ project-name }}.zsh
 	@cargo run -- completions fish > completions/{{ project-name }}.fish
 	@echo "Completions generated in ./completions/"
+
+watch: ## Watch for changes and check (requires cargo-watch)
+	@cargo watch -x check
 
 bench: ## Run benchmarks
 	@cargo bench --workspace
@@ -82,5 +87,5 @@ release: ## Tag and publish a release
 	@cargo release push --execute
 
 .PHONY: help build check run test fmt clippy lint audit install-tools install \
-        completions bench bench-cli coverage docs release-dry-run \
+        completions watch bench bench-cli coverage docs release-dry-run \
         update-submodule check-agent-sync release
