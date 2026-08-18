@@ -23,7 +23,7 @@ macOS with Homebrew:
 
 ```bash
 brew install pre-commit
-cargo install cargo-nextest cargo-deny typos-cli
+cargo install --locked cargo-nextest cargo-deny typos-cli
 ```
 
 Alternative Python-based install:
@@ -107,7 +107,7 @@ macOS + Homebrew：
 
 ```bash
 brew install pre-commit
-cargo install cargo-nextest cargo-deny typos-cli
+cargo install --locked cargo-nextest cargo-deny typos-cli
 ```
 
 Python 安装方式备选：
