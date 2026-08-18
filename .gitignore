@@ -5,6 +5,7 @@
 .claude-flow/
 .swarm/
 .claude/
+.codegraph/
 .mcp.json
 ruvector.db
 .idea/

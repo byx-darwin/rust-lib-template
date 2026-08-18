@@ -99,6 +99,7 @@ feat!: drop support for legacy TOML format
 
 `git-cliff` generates the changelog from conventional commit history. Minimal `cliff.toml`:
 
+{% raw %}
 ```toml
 [changelog]
 header = "# Changelog\n"
@@ -128,6 +129,7 @@ commit_parsers = [
     { message = "^revert", group = "Reverts" },
 ]
 ```
+{% endraw %}
 
 Generate a preview:
 
@@ -139,6 +141,7 @@ git cliff --unreleased --preview
 
 `cargo-release` is configured in `release.toml` at the workspace root:
 
+{% raw %}
 ```toml
 # release.toml
 consolidate-commits = true
@@ -149,6 +152,7 @@ push = true
 sign-commit = true
 sign-tag = true
 ```
+{% endraw %}
 
 Release commands:
 

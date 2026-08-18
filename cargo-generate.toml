@@ -4,6 +4,7 @@ exclude = [
     "cliff.toml",
     ".cursor/*",
     ".claude/*",
+    ".codegraph/*",
     ".idea/*",
     ".pre-commit-config.yaml",
     "_typos.toml",
